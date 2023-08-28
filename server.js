@@ -21,7 +21,7 @@ app.use('/api/entries', entryRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('Hello World');
 });
 
 // Handle 404 errors

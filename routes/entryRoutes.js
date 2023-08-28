@@ -15,6 +15,9 @@ router.post('/:entryId/likes', requireAuth, entryController.likeEntry);
 // Get all entries
 router.get('/', entryController.getAllEntries);
 
+// Get an entry
+router.get('/:entryId', entryController.getAEntry);
+
 // Get all comments from an entry
 router.get('/:entryId/comments', entryController.getAllComments);
 

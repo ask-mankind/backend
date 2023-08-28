@@ -18,4 +18,10 @@ router.post('/login', userController.login);
 // Log out a user
 router.post('/logout', requireAuth, userController.logout);
 
+// Update a user (protected route)
+router.patch('/:id', requireAuth, userController.updateUser);
+
+// Delete a user (protected route)
+router.delete('/:id', requireAuth, userController.deleteUser);
+
 module.exports = router;

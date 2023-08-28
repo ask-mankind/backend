@@ -114,3 +114,26 @@ exports.getAllComments = async (req, res) => {
       .json({ error: 'An error occurred while retrieving comments', error });
   }
 };
+
+exports.getAEntry = async (req, res) => {
+    try {
+      const entry = await Entry.findById(req.params.entryId);
+  
+      if (!entry) {
+        return res.status(404).json({
+          success: false,
+          message: 'Entry not found',
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        entry,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  };
