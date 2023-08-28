@@ -91,6 +91,9 @@ exports.likeEntry = async (req, res) => {
 exports.getAllEntries = async (req, res) => {
   try {
     const entries = await Entry.find().populate('comments likes');
+
+    if (!entries) return res.status(404).send('Entries not found');
+
     res.status(200).json(entries);
   } catch (error) {
     res

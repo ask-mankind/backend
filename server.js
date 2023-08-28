@@ -7,7 +7,7 @@ const entryRoutes = require('./routes/entryRoutes');
 
 const connectDB = require('./config/db');
 
-dotenv.config()
+dotenv.config();
 
 const app = express();
 
@@ -19,6 +19,10 @@ app.use(cookieParser());
 app.use('/api/entries', entryRoutes);
 app.use('/api/users', userRoutes);
 
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
 // Handle 404 errors
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -29,7 +33,6 @@ app.use('*', (req, res) => {
 
 // Connect to MongoDB
 connectDB();
-
 
 port = process.env.PORT;
 app.listen(port, () => {
