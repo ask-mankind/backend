@@ -1,17 +1,25 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
+
+const userRoutes = require('./routes/userRoutes');
+const entryRoutes = require('./routes/entryRoutes');
 
 const connectDB = require('./config/db');
 
 dotenv.config()
 
-
 const app = express();
 
-app.use('/api/users', (req, res) => {
-  res.send('Hello World!');
-});
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 
+// Routes
+app.use('/api/entries', entryRoutes);
+app.use('/api/users', userRoutes);
+
+// Handle 404 errors
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -19,7 +27,9 @@ app.use('*', (req, res) => {
   });
 });
 
+// Connect to MongoDB
 connectDB();
+
 
 port = process.env.PORT;
 app.listen(port, () => {
