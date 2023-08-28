@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
+const config = require('./config');
 
 const userRoutes = require('./routes/userRoutes');
 const entryRoutes = require('./routes/entryRoutes');
@@ -34,7 +35,7 @@ app.use('*', (req, res) => {
 // Connect to MongoDB
 connectDB();
 
-port = process.env.PORT;
+port = config.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
