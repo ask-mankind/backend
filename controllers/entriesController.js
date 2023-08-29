@@ -1,5 +1,5 @@
 const Entry = require('../models/Entry');
-const Like = require('../models/Like');
+const User = require('../models/User');
 const Tag = require('../models/Tag');
 
 // create entry
@@ -55,6 +55,11 @@ async function getUserEntries(req, res) {
   try {
     const userId = req.params.userId;
 
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error(`User not found`);
+    }
+
     // Find all entries from user
     const userEntries = await Entry.find({ author: userId })
       .populate('author', '-password')
@@ -90,47 +95,49 @@ async function getAnEntry(req, res) {
 
 // update entry
 async function updateEntry(req, res) {
-    try {
-      const entry = await Entry.findById(req.params.entryId);
-  
-      if (!req.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-  
-      if (entry.author.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ error: 'This entry belongs to another user' });
-      }
-  
-      entry.content = req.body.content;
-      await entry.save();
-  
-      res.status(200).json({ message: 'Entry updated successfully' });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+  try {
+    const entry = await Entry.findById(req.params.entryId);
+
+    if (!req.user) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
+
+    if (entry.author.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ error: 'This entry belongs to another user' });
+    }
+
+    entry.content = req.body.content;
+    await entry.save();
+
+    res.status(200).json({ message: 'Entry updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
+}
 
 // delete entry
 async function deleteEntry(req, res) {
-    try {
-      const entry = await Entry.findById(req.params.entryId);
-  
-      
-      if (!req.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-  
-      
-      if (entry.author.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ error: 'This entry belongs to another user' });
-      }
-  
-      await Entry.findByIdAndDelete(req.params.entryId);
-      res.status(200).json({ message: 'Entry deleted successfully' });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+  try {
+    const entry = await Entry.findById(req.params.entryId);
+
+    if (!req.user) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
+
+    if (entry.author.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ error: 'This entry belongs to another user' });
+    }
+
+    await Entry.findByIdAndDelete(req.params.entryId);
+    res.status(200).json({ message: 'Entry deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
+}
 
 module.exports = {
   createEntry,

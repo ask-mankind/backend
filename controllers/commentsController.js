@@ -29,7 +29,7 @@ async function getAllCommentsfromEntry(req, res) {
   try {
     const entry = await Entry.findById(req.params.entryId).populate('comments');
     if (!entry) {
-      return res.status(404).json({ message: 'Entry bulunamadı' });
+      return res.status(404).json({ message: 'Entry not found' });
     }
     res.status(200).json(entry.comments);
   } catch (error) {
