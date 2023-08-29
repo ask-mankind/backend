@@ -11,6 +11,7 @@ async function addCommentToEntry(req, res) {
   try {
     const newComment = await Comment.create({
       comment: req.body.comment,
+      entry: req.params.entryId,
       author: req.user._id,
     });
 

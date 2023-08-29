@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 
 const config = require('./config');
 const connectDB = require('./config/db');
+const User = require('./models/User');
 
 const app = express();
 
@@ -12,12 +13,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Routes
-app.use('/api/entry', require('./routes/entriesRoutes'), require('./routes/commentsRoutes'));
+app.use('/api/entry', require('./routes/entriesRoutes'), require('./routes/commentsRoutes'), require('./routes/likesRoutes'));
 app.use('/api/user', require('./routes/usersRoutes'));
 
-app.get('/', (req, res) => {
-  res.send('Hello World');
-});
 
 // Handle 404 errors
 app.use('*', (req, res) => {

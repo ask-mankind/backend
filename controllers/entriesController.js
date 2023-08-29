@@ -1,5 +1,7 @@
 const Entry = require('../models/Entry');
 const User = require('../models/User');
+const Comment = require('../models/Comment');
+const Like = require('../models/Like');
 const Tag = require('../models/Tag');
 
 // create entry
@@ -132,6 +134,10 @@ async function deleteEntry(req, res) {
         .json({ error: 'This entry belongs to another user' });
     }
 
+    // delete all comments and likes of entry
+    await Comment.deleteMany({ entry: entry._id });
+    await Like.deleteMany({ entry: entry._id });
+    
     await Entry.findByIdAndDelete(req.params.entryId);
     res.status(200).json({ message: 'Entry deleted successfully' });
   } catch (error) {
