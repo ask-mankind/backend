@@ -69,12 +69,13 @@ async function getUserEntries(req, res) {
 // get a entry
 async function getAnEntry(req, res) {
   try {
-    const entry = await Entry.findById(req.params.entryId);
-    //   .populate('author', 'username')
-    //   .populate({
-    //     path: 'comments',
-    //     populate: { path: 'author', select: 'username' },
-    //   });
+    const entry = await Entry.findById(req.params.entryId)
+      .populate('author', 'username')
+      .populate('tags', 'name')
+      .populate({
+        path: 'comments',
+        populate: { path: 'author', select: 'username' },
+      });
 
     if (!entry) {
       res.status(404).json({ error: 'Entry not found' });
@@ -97,7 +98,7 @@ async function updateEntry(req, res) {
       }
   
       if (entry.author.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ error: 'Unauthorized' });
+        return res.status(403).json({ error: 'This entry belongs to another user' });
       }
   
       entry.content = req.body.content;
@@ -121,7 +122,7 @@ async function deleteEntry(req, res) {
   
       
       if (entry.author.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ error: 'Unauthorized' });
+        return res.status(403).json({ error: 'This entry belongs to another user' });
       }
   
       await Entry.findByIdAndDelete(req.params.entryId);
