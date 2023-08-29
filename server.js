@@ -16,6 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+
 // Routes
 app.use('/api/entries', entryRoutes);
 app.use('/api/users', userRoutes);

@@ -20,16 +20,16 @@ const EntrySchema = new mongoose.Schema(
     ],
     likes: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Like',
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
       },
     ],
-    tags: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tag',
-      },
-    ],
+    tags: {
+      type: [String], // Array of strings for tags
+      default: [],
+    },
   },
   {
     timestamps: true,
