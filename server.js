@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Routes
-// app.use('/api/entry', require('./routes/entriesRoutes'));
+app.use('/api/entry', require('./routes/entriesRoutes'));
 app.use('/api/user', require('./routes/usersRoutes'));
 
 app.get('/', (req, res) => {
