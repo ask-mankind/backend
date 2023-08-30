@@ -1,29 +1,21 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
+
 const config = require('./config');
-
-const userRoutes = require('./routes/userRoutes');
-const entryRoutes = require('./routes/entryRoutes');
-
 const connectDB = require('./config/db');
-
-dotenv.config();
+const User = require('./models/User');
 
 const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-
 // Routes
-app.use('/api/entries', entryRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/entry', require('./routes/entriesRoutes'), require('./routes/commentsRoutes'), require('./routes/likesRoutes'));
+app.use('/api/user', require('./routes/usersRoutes'));
 
-app.get('/', (req, res) => {
-  res.send('Hello World');
-});
 
 // Handle 404 errors
 app.use('*', (req, res) => {
@@ -36,7 +28,6 @@ app.use('*', (req, res) => {
 // Connect to MongoDB
 connectDB();
 
-port = config.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
+// Start server
+const PORT = config.PORT;
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

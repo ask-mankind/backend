@@ -1,39 +1,13 @@
 const mongoose = require('mongoose');
 
-const EntrySchema = new mongoose.Schema(
-  {
-    content: {
-      type: String,
-      required: [true, 'Please provide a title'],
-      trim: true,
-    },
+const entrySchema = new mongoose.Schema({
+  content: { type: String, required: true },
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+});
 
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-    comments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment',
-      },
-    ],
-    likes: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-        },
-      },
-    ],
-    tags: {
-      type: [String], // Array of strings for tags
-      default: [],
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+const Entry = mongoose.model('Entry', entrySchema);
 
-module.exports = mongoose.model('Entry', EntrySchema);
+module.exports = Entry;
