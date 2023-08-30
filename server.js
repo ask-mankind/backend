@@ -3,7 +3,6 @@ const cookieParser = require('cookie-parser');
 
 const config = require('./config');
 const connectDB = require('./config/db');
-const User = require('./models/User');
 
 const app = express();
 
@@ -13,9 +12,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Routes
-app.use('/api/entries', require('./routes/entriesRoutes'), require('./routes/commentsRoutes'), require('./routes/likesRoutes'));
+app.use(
+  '/api/entries',
+  require('./routes/entriesRoutes'),
+  require('./routes/commentsRoutes'),
+  require('./routes/likesRoutes')
+);
 app.use('/api/users', require('./routes/usersRoutes'));
+app.use('/api/tags', require('./routes/tagsRoutes'));
 
+// healthcheck
+app.get('/healthcheck', (req, res) => {
+  res.status(200).json({ message: 'Server is running' });
+});
 
 // Handle 404 errors
 app.use('*', (req, res) => {

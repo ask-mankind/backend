@@ -15,9 +15,6 @@ router.get('/:userId/entries', entriesController.getUserEntries);
 // get a entry
 router.get('/:entryId', entriesController.getAnEntry);
 
-// update entry
-router.put('/:entryId/update', requireAuth, entriesController.updateEntry);
-
 // delete entry
 router.delete('/:entryId/delete', requireAuth, entriesController.deleteEntry);
 

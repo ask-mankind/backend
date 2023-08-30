@@ -7,40 +7,38 @@ const Tag = require('../models/Tag');
 // create entry
 async function createEntry(req, res) {
   try {
-    const tagNames = req.body.tags; // tag names
-
-    // find existing tags
-    const existingTags = await Tag.find({ name: { $in: tagNames } });
-
-    const existingTagNames = existingTags.map((tag) => tag.name);
-    const newTagNames = tagNames.filter(
-      (tagName) => !existingTagNames.includes(tagName)
-    );
-
-    // if tag exists, use their IDs
-    const existingTagIds = existingTags.map((tag) => tag._id);
-
-    // if tag doesn't exist, create new tag
-    const newTagIds = [];
-    if (newTagNames.length > 0) {
-      const newTags = await Tag.create(newTagNames.map((name) => ({ name })));
-      newTagIds.push(...newTags.map((tag) => tag._id));
-    }
-
-    // combine existing tag IDs and new tag IDs
-    const entryTags = [...existingTagIds, ...newTagIds];
+    const tagNames = req.body.tags;
 
     const newEntry = await Entry.create({
       content: req.body.content,
       author: req.user._id,
-      tags: entryTags,
+      tags: [],
     });
+
+    for (const tagName of tagNames) {
+      let existingTag = await Tag.findOne({ name: tagName });
+
+      if (existingTag) {
+        if (!existingTag.entries.includes(newEntry._id)) {
+          existingTag.entries.push(newEntry._id);
+          existingTag.count++;
+          await existingTag.save();
+        }
+      } else {
+        existingTag = await Tag.create({ name: tagName, entries: [newEntry._id], count: 1 });
+      }
+
+      newEntry.tags.push(existingTag._id);
+    }
+
+    await newEntry.save();
 
     res.status(201).json(newEntry);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 }
+
 
 // get all entries
 async function getAllEntries(req, res) {
@@ -95,30 +93,6 @@ async function getAnEntry(req, res) {
   }
 }
 
-// update entry
-async function updateEntry(req, res) {
-  try {
-    const entry = await Entry.findById(req.params.entryId);
-
-    if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    if (entry.author.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({ error: 'This entry belongs to another user' });
-    }
-
-    entry.content = req.body.content;
-    await entry.save();
-
-    res.status(200).json({ message: 'Entry updated successfully' });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-}
-
 // delete entry
 async function deleteEntry(req, res) {
   try {
@@ -142,9 +116,27 @@ async function deleteEntry(req, res) {
       await Like.deleteMany({ comment: comment._id });
     }
 
-    // delete all comments and likes of entry
+    // Delete all comments and likes of entry
     await Comment.deleteMany({ entry: entry._id });
     await Like.deleteMany({ entry: entry._id });
+
+    // Find tags associated with this entry
+    const tags = await Tag.find({ entries: entry._id });
+
+    // Check if each tag has entries other than the one being deleted
+    for (const tag of tags) {
+      const otherEntriesWithTag = await Entry.exists({
+        _id: { $ne: entry._id },
+        tags: tag._id,
+      });
+
+      if (!otherEntriesWithTag) {
+        await Tag.findByIdAndDelete(tag._id);
+      } else {
+        tag.entries = tag.entries.filter(id => id.toString() !== entry._id.toString());
+        await tag.save();
+      }
+    }
 
     await Entry.findByIdAndDelete(req.params.entryId);
     res.status(200).json({ message: 'Entry deleted successfully' });
@@ -153,11 +145,11 @@ async function deleteEntry(req, res) {
   }
 }
 
+
 module.exports = {
   createEntry,
   getAllEntries,
   getUserEntries,
   getAnEntry,
-  updateEntry,
   deleteEntry,
 };
