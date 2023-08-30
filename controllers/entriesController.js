@@ -134,10 +134,18 @@ async function deleteEntry(req, res) {
         .json({ error: 'This entry belongs to another user' });
     }
 
+    // get all comments of the entry
+    const comments = await Comment.find({ entry: entry._id });
+
+    // delete all comments' likes
+    for (const comment of comments) {
+      await Like.deleteMany({ comment: comment._id });
+    }
+
     // delete all comments and likes of entry
     await Comment.deleteMany({ entry: entry._id });
     await Like.deleteMany({ entry: entry._id });
-    
+
     await Entry.findByIdAndDelete(req.params.entryId);
     res.status(200).json({ message: 'Entry deleted successfully' });
   } catch (error) {

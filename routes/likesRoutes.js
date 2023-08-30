@@ -14,7 +14,7 @@ router.post(
 );
 
 // unlike entry
-router.post('/entry/:entryId/unlike', requireAuth, likesController.unlikeEntry);
+router.post('/:entryId/unlike', requireAuth, likesController.unlikeEntry);
 
 // unlike comment
 router.post(
@@ -24,7 +24,7 @@ router.post(
 );
 
 // get all likes from entry
-router.get('/entry/:entryId/likes', likesController.getAllLikesFromEntry);
+router.get('/:entryId/likes', likesController.getAllLikesFromEntry);
 
 // get all likes from comment
 router.get('/comment/:commentId/likes', likesController.getAllLikesFromComment);

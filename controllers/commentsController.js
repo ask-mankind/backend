@@ -1,5 +1,6 @@
 const Comment = require('../models/Comment');
 const Entry = require('../models/Entry');
+const Like = require('../models/Like');
 
 // add comment to entry
 async function addCommentToEntry(req, res) {
@@ -71,19 +72,28 @@ async function updateComment(req, res) {
 async function deleteComment(req, res) {
   try {
     const comment = await Comment.findById(req.params.commentId);
+
     if (!comment) {
       throw new Error(`Comment not found`);
     }
+
     const entry = await Entry.findById(req.params.entryId);
+
     if (!entry) {
       throw new Error(`Entry not found`);
     }
+    await Entry.findByIdAndUpdate(comment.entry, {
+      $pull: { comments: comment._id },
+    });
+
     if (comment.author.toString() !== req.user._id.toString()) {
       throw new Error(`You cannot delete this comment`);
     }
+
+    await Like.deleteMany({ comment: comment._id });
+
     await Comment.findByIdAndRemove(req.params.commentId);
-    entry.comments = entry.comments.filter((id) => id !== comment._id);
-    await entry.save();
+
     res.status(200).json({ message: `Comment deleted successfully` });
   } catch (err) {
     res.status(400).json({ error: err.message });

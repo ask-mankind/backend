@@ -39,69 +39,95 @@ async function likeEntry(req, res) {
 
 // like comment
 async function likeComment(req, res) {
-    try {
-      const commentId = req.params.commentId;
-      const userId = req.user._id;
-  
-      // check if user already liked this comment
-      const existingLike = await Like.findOne({ user: userId, comment: commentId });
-  
-      if (existingLike) {
-        return res.status(400).json({ error: 'This user already liked this comment' });
-      }
-  
-      const newLike = await Like.create({
-        user: userId,
-        comment: commentId,
-      });
-  
-      await Comment.findByIdAndUpdate(commentId, {
-        $push: { likes: newLike._id },
-      });
-  
-      res.status(201).json(newLike);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
+  try {
+    const commentId = req.params.commentId;
+    const userId = req.user._id;
 
-// Entry beğenmeyi geri alma
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+   
+    // check if user already liked this comment
+    const existingLike = await Like.findOne({
+      user: userId,
+      comment: commentId,
+    });
+
+    if (existingLike) {
+      return res
+        .status(400)
+        .json({ error: 'This user already liked this comment' });
+    }
+
+    const newLike = await Like.create({
+      user: userId,
+      comment: commentId,
+    });
+
+    await Comment.findByIdAndUpdate(commentId, {
+      $push: { likes: newLike._id },
+    });
+
+    res.status(201).json(newLike);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// unlike entry
 async function unlikeEntry(req, res) {
   try {
-    await Like.findOneAndDelete({
+    const like = await Like.findOneAndDelete({
       user: req.user._id,
       entry: req.params.entryId,
     });
 
-    await Entry.findByIdAndUpdate(req.params.entryId, {
-      $pull: { likes: { user: req.user._id } },
-    });
+    if (!like) {
+      return res.status(404).json({ error: 'Like not found' });
+    }
 
-    res.status(200).json({ message: 'Entry beğenisi geri alındı' });
+    if (like) {
+      await Entry.findByIdAndUpdate(req.params.entryId, {
+        $pull: { likes: like._id },
+      });
+
+      res.status(200).json({ message: 'Entry unliked' });
+    } else {
+      res.status(404).json({ message: 'Like not found' });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 }
 
-// Yorum beğenmeyi geri alma
+// unlike comment
 async function unlikeComment(req, res) {
   try {
-    await Like.findOneAndDelete({
+    const like = await Like.findOneAndDelete({
       user: req.user._id,
       comment: req.params.commentId,
     });
 
-    await Comment.findByIdAndUpdate(req.params.commentId, {
-      $pull: { likes: { user: req.user._id } },
-    });
+    if (!like) {
+      return res.status(404).json({ error: 'Like not found' });
+    }
 
-    res.status(200).json({ message: 'Yorum beğenisi geri alındı' });
+    if (like) {
+      await Comment.findByIdAndUpdate(req.params.commentId, {
+        $pull: { likes: like._id },
+      });
+
+      res.status(200).json({ message: 'Comment unliked' });
+    } else {
+      res.status(404).json({ message: 'Like not found' });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 }
 
-// Bir entry'den tüm beğenileri alma
+// get all likes from entry
 async function getAllLikesFromEntry(req, res) {
   try {
     const entryLikes = await Like.find({ entry: req.params.entryId });
@@ -111,7 +137,7 @@ async function getAllLikesFromEntry(req, res) {
   }
 }
 
-// Bir yorumdan tüm beğenileri alma
+// get all likes from comment
 async function getAllLikesFromComment(req, res) {
   try {
     const commentLikes = await Like.find({ comment: req.params.commentId });
