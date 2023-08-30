@@ -13,8 +13,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Routes
-app.use('/api/entry', require('./routes/entriesRoutes'), require('./routes/commentsRoutes'), require('./routes/likesRoutes'));
-app.use('/api/user', require('./routes/usersRoutes'));
+app.use('/api/entries', require('./routes/entriesRoutes'), require('./routes/commentsRoutes'), require('./routes/likesRoutes'));
+app.use('/api/users', require('./routes/usersRoutes'));
 
 
 // Handle 404 errors
