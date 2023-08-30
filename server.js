@@ -1,5 +1,8 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('./swagger_output.json')
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const config = require('./config');
 const connectDB = require('./config/db');
@@ -10,21 +13,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(cors());
 
-// Routes
-app.use(
-  '/api/entries',
-  require('./routes/entriesRoutes'),
-  require('./routes/commentsRoutes'),
-  require('./routes/likesRoutes')
-);
-app.use('/api/users', require('./routes/usersRoutes'));
-app.use('/api/tags', require('./routes/tagsRoutes'));
+// Swagger
+app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
-// healthcheck
-app.get('/healthcheck', (req, res) => {
-  res.status(200).json({ message: 'Server is running' });
-});
+app.use('/', require('./routes/index'));
 
 // Handle 404 errors
 app.use('*', (req, res) => {
@@ -33,6 +27,8 @@ app.use('*', (req, res) => {
     message: 'API endpoint doesnt exist',
   });
 });
+
+
 
 // Connect to MongoDB
 connectDB();
