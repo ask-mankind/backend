@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Entry = require('../models/Entry');
+const Like = require('../models/Like');
+const Comment = require('../models/Comment');
 
 // register user
 async function registerUser(req, res) {
@@ -124,7 +127,18 @@ async function updateUser(req, res) {
 async function deleteUser(req, res) {
   try {
     const userId = req.user._id;
+    const deletedUser = await User.findOne({ username: 'Deleted User' });
 
+    // update entries of user to "Deleted User"
+    await Entry.updateMany({ author: userId }, { author: deletedUser._id });
+
+    // update comments of user to "Deleted User"
+    await Comment.updateMany({ author: userId }, { author: deletedUser._id });
+
+    // update likes of user to "Deleted User"
+    await Like.updateMany({ user: userId }, { user: deletedUser._id });
+
+    // delete user
     await User.findByIdAndDelete(userId);
 
     res.status(200).json({ message: 'User deleted successfully' });
