@@ -21,11 +21,14 @@ async function createEntry(req, res) {
       if (existingTag) {
         if (!existingTag.entries.includes(newEntry._id)) {
           existingTag.entries.push(newEntry._id);
-          existingTag.count++;
           await existingTag.save();
         }
       } else {
-        existingTag = await Tag.create({ name: tagName, entries: [newEntry._id], count: 1 });
+        existingTag = await Tag.create({
+          name: tagName,
+          entries: [newEntry._id],
+          count: 1,
+        });
       }
 
       newEntry.tags.push(existingTag._id);
@@ -39,11 +42,12 @@ async function createEntry(req, res) {
   }
 }
 
-
 // get all entries
 async function getAllEntries(req, res) {
   try {
-    const entries = await Entry.find().populate('author', 'username');
+    const entries = await Entry.find()
+      .populate('author', 'username')
+      .populate('tags', 'name');
     res.status(200).json(entries);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -133,7 +137,9 @@ async function deleteEntry(req, res) {
       if (!otherEntriesWithTag) {
         await Tag.findByIdAndDelete(tag._id);
       } else {
-        tag.entries = tag.entries.filter(id => id.toString() !== entry._id.toString());
+        tag.entries = tag.entries.filter(
+          (id) => id.toString() !== entry._id.toString()
+        );
         await tag.save();
       }
     }
@@ -144,7 +150,6 @@ async function deleteEntry(req, res) {
     res.status(400).json({ error: error.message });
   }
 }
-
 
 module.exports = {
   createEntry,

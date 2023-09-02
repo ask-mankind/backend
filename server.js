@@ -18,6 +18,7 @@ app.use(cors());
 // Swagger
 app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
+// Routes
 app.use('/', require('./routes/index'));
 
 // Handle 404 errors
