@@ -47,7 +47,12 @@ async function getAllEntries(req, res) {
   try {
     const entries = await Entry.find()
       .populate('author', 'username')
-      .populate('tags', 'name');
+      .populate('tags', 'name')
+      .populate({
+        path: 'comments',
+        populate: { path: 'author'},
+        populate: { path: 'likes' },
+      });
     res.status(200).json(entries);
   } catch (error) {
     res.status(500).json({ error: error.message });
