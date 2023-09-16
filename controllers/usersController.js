@@ -95,7 +95,7 @@ async function loginUser(req, res) {
 
     res.cookie('jwt', token, { httpOnly: true, maxAge: 3600000 }); // add JWT token to cookie
 
-    res.status(200).json({ message: 'User successfully login' });
+    res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
