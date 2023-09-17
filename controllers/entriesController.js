@@ -8,7 +8,7 @@ const Tag = require('../models/Tag');
 async function createEntry(req, res) {
   try {
     const tagNames = req.body.tags;
-
+    
     const newEntry = await Entry.create({
       content: req.body.content,
       author: req.user._id,
