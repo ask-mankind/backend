@@ -36,7 +36,7 @@ async function registerUser(req, res) {
 
     res.cookie('jwt', token, { httpOnly: true, maxAge: 3600000 }); // add JWT token to cookie
 
-    res.status(201).json(newUser);
+    res.status(201).json({newUser, token});
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
